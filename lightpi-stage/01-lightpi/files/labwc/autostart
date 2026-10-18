@@ -1,0 +1,3 @@
+#!/bin/sh
+# Started by labwc once the compositor is up.
+/opt/lightpi/start-lightpi.sh &

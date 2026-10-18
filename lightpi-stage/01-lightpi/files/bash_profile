@@ -1,0 +1,9 @@
+# ~/.bash_profile - LightPi
+[ -f "$HOME/.profile" ] && . "$HOME/.profile"
+
+# Start the LightPi UI on the first console only (not over SSH, not on tty2+).
+if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$SSH_CONNECTION" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    export XDG_SESSION_TYPE=wayland
+    export XDG_CURRENT_DESKTOP=labwc
+    exec labwc
+fi

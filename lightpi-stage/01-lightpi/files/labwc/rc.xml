@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <keyboard>
+    <default />
+    <!-- Super+Esc closes the focused window (e.g. leave the browser, back to LightPi) -->
+    <keybind key="W-Escape">
+      <action name="Close" />
+    </keybind>
+  </keyboard>
+  <mouse>
+    <default />
+  </mouse>
+</labwc_config>
