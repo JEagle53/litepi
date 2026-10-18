@@ -1,0 +1,81 @@
+name: Build LightPi OS image
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: Login user name
+        default: lightpi
+      password:
+        description: Login password (change it!)
+        default: lightpi
+      hostname:
+        description: Device host name
+        default: lightpi
+      wifi_country:
+        description: Wi-Fi country code (e.g. US, GB, GR)
+        default: US
+      timezone:
+        description: Time zone (e.g. Europe/Athens)
+        default: UTC
+      keymap:
+        description: Keyboard layout code (e.g. us, gb, de)
+        default: us
+      keyboard_name:
+        description: Keyboard layout name (e.g. English (US), German)
+        default: English (US)
+      runner:
+        description: Runner (ARM is much faster but needs a public repo)
+        type: choice
+        default: ubuntu-latest
+        options:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make stage scripts executable
+        run: |
+          chmod +x lightpi-stage/prerun.sh \
+                   lightpi-stage/01-lightpi/00-run.sh \
+                   lightpi-stage/01-lightpi/files/opt-lightpi/start-lightpi.sh \
+                   lightpi-stage/01-lightpi/files/opt-lightpi/lightpi.py \
+                   lightpi-stage/01-lightpi/files/labwc/autostart
+
+      - name: Build image with pi-gen
+        id: build
+        uses: usimd/pi-gen-action@v1
+        with:
+          image-name: LightPi-OS-0.1
+          pi-gen-version: arm64
+          release: trixie
+          stage-list: stage0 stage1 stage2 ./lightpi-stage
+          export-last-stage-only: true
+          hostname: ${{ inputs.hostname || 'lightpi' }}
+          username: ${{ inputs.username || 'lightpi' }}
+          password: ${{ inputs.password || 'lightpi' }}
+          disable-first-boot-user-rename: 1
+          passwordless-sudo: 1
+          enable-ssh: 1
+          enable-cloud-init: 0
+          wpa-country: ${{ inputs.wifi_country || 'US' }}
+          timezone: ${{ inputs.timezone || 'UTC' }}
+          keyboard-keymap: ${{ inputs.keymap || 'us' }}
+          keyboard-layout: ${{ inputs.keyboard_name || 'English (US)' }}
+          locale: en_US.UTF-8
+          compression: xz
+          increase-runner-disk-size: true
+          verbose-output: true
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: LightPi-OS-0.1
+          path: ${{ steps.build.outputs.image-path }}
+          retention-days: 14
+          compression-level: 0
