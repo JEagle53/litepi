@@ -14,10 +14,10 @@ on:
         default: lightpi
       wifi_country:
         description: Wi-Fi country code (e.g. US, GB, GR)
-        default: US
+        default: GR
       timezone:
         description: Time zone (e.g. Europe/Athens)
-        default: UTC
+        default: Europe/Athens
       keymap:
         description: Keyboard layout code (e.g. us, gb, de)
         default: us
@@ -60,11 +60,10 @@ jobs:
           username: ${{ inputs.username || 'lightpi' }}
           password: ${{ inputs.password || 'lightpi' }}
           disable-first-boot-user-rename: 1
-          passwordless-sudo: 1
           enable-ssh: 1
           enable-cloud-init: 0
-          wpa-country: ${{ inputs.wifi_country || 'US' }}
-          timezone: ${{ inputs.timezone || 'UTC' }}
+          wpa-country: ${{ inputs.wifi_country || 'GR' }}
+          timezone: ${{ inputs.timezone || 'Europe/Athens' }}
           keyboard-keymap: ${{ inputs.keymap || 'us' }}
           keyboard-layout: ${{ inputs.keyboard_name || 'English (US)' }}
           locale: en_US.UTF-8
