@@ -34,7 +34,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +68,6 @@ jobs:
           keyboard-layout: ${{ inputs.keyboard_name || 'English (US)' }}
           locale: en_US.UTF-8
           compression: xz
-          increase-runner-disk-size: true
           verbose-output: true
 
       - name: Upload image
