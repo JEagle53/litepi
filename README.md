@@ -1,63 +1,91 @@
-# LightPi OS 0.1
+# LightPi OS
 
-An Android-inspired, touch-friendly mobile interface on Raspberry Pi OS Lite (Debian 13 "trixie", 64-bit).
+**An Android-inspired, touch-friendly interface for the Raspberry Pi 4.**
+LightPi boots straight into a phone-style home screen. There is no desktop, just a lock screen, a launcher and a few essential apps. It is built on Raspberry Pi OS Lite (64-bit) and stays light enough for the 1 GB Pi 4.
 
-**Target:** Raspberry Pi 4B (1 GB) · HDMI display · 32 GB microSD
+> **Status: version 0.1, early release.** Built to run on a Raspberry Pi 4B (1 GB) with an HDMI or USB touchscreen and a 32 GB microSD card.
 
-**Included:** lock screen (optional PIN) · home screen · Wi-Fi manager · file manager · settings ·
-on-screen keyboard · web browser launcher (Chromium) · auto-start into LightPi
+---
 
-**Not included yet:** NAS/CasaOS app store and updates (planned for a later release).
+## What's inside
 
-## Get the image (easiest: GitHub Actions)
+| App | What it does |
+| --- | --- |
+| **Lock screen** | Clock and date. Tap to unlock, or set a PIN in Settings. |
+| **Home screen** | App icons, a big clock, and an Android-style Back / Home / Lock bar. |
+| **Wi-Fi** | Scan networks, connect with a password, disconnect, turn Wi-Fi on or off. |
+| **Files** | Browse folders, preview text files, delete files. |
+| **Browser** | Type an address or a search and open it in Chromium. |
+| **Settings** | Device info (IP, memory, storage, temperature), lock PIN, reboot, shut down. |
+| **On-screen keyboard** | Appears whenever you tap a text field inside LightPi. |
 
-1. Create a new GitHub repository and upload everything in this folder (keep the `.github` folder).
-2. Open the repo's **Actions** tab, pick **Build LightPi OS image**, click **Run workflow**.
-   Set your Wi-Fi country, time zone and a password (default login is `lightpi` / `lightpi`).
-3. Wait for the run to finish (about 1 to 2 hours on `ubuntu-latest`, about 20 to 30 minutes on `ubuntu-24.04-arm` for public repos).
-4. Download the `LightPi-OS-0.1` artifact, unzip it, and you get `LightPi-OS-0.1.img.xz`.
+**Not in 0.1:** app store and update server (planned), an on-screen keyboard inside Chromium, swipe gestures, and drivers for small GPIO screens.
 
-## Or build on your own Linux PC
+---
 
-```bash
-./build-local.sh          # needs git + docker, ~15 GB free
-# optional: LIGHTPI_PASS=secret LIGHTPI_WIFI_COUNTRY=GB LIGHTPI_TZ=Europe/London ./build-local.sh
-```
-The image appears in `out/`.
+## Get the image
+
+The image is built in the cloud with GitHub Actions, so you don't need Linux.
+
+1. Open the **Actions** tab of this repository.
+2. Click **Build LightPi OS image** in the left sidebar, then **Run workflow**.
+3. Fill in the form:
+   - **password:** choose your own (the default is `lightpi`)
+   - **wifi_country:** two letters, for example `GR`, `US`, `GB`
+   - **timezone:** for example `Europe/Athens`
+4. Click the green **Run workflow** button and wait (about 35 minutes in the last successful run).
+5. When the run shows a green tick, scroll to **Artifacts** and download **LightPi-OS-0.1**.
+6. Unzip it. The image file is inside.
+
+You can also build on your own Linux PC with Docker by running `./build-local.sh`. The image appears in `out/`.
 
 ## Flash it
 
 1. Install **Raspberry Pi Imager**.
-2. Choose Device: *Raspberry Pi 4*, OS: *Use custom* and pick the `.img.xz` file, Storage: your 32 GB card.
-3. If Imager offers OS customisation, skip it (the image is already configured).
-4. Put the card in the Pi, connect HDMI + USB keyboard/mouse, power on.
-   The first boot expands the filesystem and then shows the LightPi lock screen.
+2. Choose **Raspberry Pi 4** as the device, **Use custom** as the OS (pick the image file), and your microSD card.
+3. If Imager offers OS customisation, choose **No**. The image is already configured.
+4. Insert the card, connect the screen and a keyboard, and power on. The first boot takes a minute or two.
 
-## Using it
+Default login for the console and SSH: user `lightpi` and the password you chose in the form.
 
-| Action | How |
+---
+
+## Using LightPi
+
+| To do this | Do this |
 | --- | --- |
-| Unlock | Tap the lock screen (or enter your PIN if you set one) |
-| Back / Home / Lock | The three buttons on the bottom bar |
-| Connect Wi-Fi | Wi-Fi app, tap a network, enter the password with the on-screen keyboard |
-| Browse the web | Browser app, type an address or search, tap Go. Close the Chromium window (or press `Super+Esc`) to return to LightPi |
-| Set a PIN, reboot, shut down | Settings app |
-| Console login | `Ctrl+Alt+F2` on a keyboard, or SSH to `lightpi.local` |
+| Unlock | Tap the lock screen, or enter your PIN |
+| Go back / Home / Lock | Use the three buttons on the bottom bar |
+| Connect to Wi-Fi | Wi-Fi app, tap a network, type the password |
+| Leave the browser | Close the Chromium window, or press `Super+Esc` |
+| Open a text console | `Ctrl+Alt+F2` on a keyboard |
+| Reach it from another computer | `ssh lightpi@lightpi.local` |
 
 ## Troubleshooting
 
-* **Black screen / back to login prompt:** press `Ctrl+Alt+F2`, log in, and read `~/lightpi.log`.
-* **Wrong login or Wi-Fi country:** rebuild with different workflow inputs.
-* **Browser has no on-screen keyboard:** only LightPi's own text fields have one so far. Use a USB keyboard inside web pages for now.
-* **Touchscreen:** USB HDMI touch screens work as a mouse. GPIO screens need their own driver (not covered in 0.1).
+- **Text login instead of LightPi:** press `Ctrl+Alt+F2`, log in, and read `~/lightpi.log`.
+- **Touch lands in the wrong place:** this is a screen mapping problem. Open an issue with your screen model.
+- **Web pages need typing:** Chromium has no on-screen keyboard yet, so use a USB keyboard.
+- **Build fails in Actions:** open the failed run, click the red step, and copy the last 20 lines of the log.
 
-## Layout
+---
+
+## Repository layout
 
 ```
-lightpi-stage/                 pi-gen stage that turns Raspberry Pi OS Lite into LightPi
-  00-install-packages/         apt packages (labwc, xwayland, python3-tk, chromium, fonts)
-  01-lightpi/00-run.sh         installs the shell, autologin and compositor config
-  01-lightpi/files/opt-lightpi/lightpi.py   the LightPi interface (Python + Tkinter)
-.github/workflows/build-image.yml          cloud build
-build-local.sh                 local Docker build
+.github/workflows/build-image.yml     cloud build (GitHub Actions)
+build-local.sh                        local Docker build
+lightpi-stage/                        pi-gen stage that turns Raspberry Pi OS Lite into LightPi
+  00-install-packages/                packages: labwc, xwayland, python3-tk, chromium, fonts
+  01-lightpi/00-run.sh                installs the shell, autologin and compositor config
+  01-lightpi/files/opt-lightpi/       the LightPi interface (Python + Tkinter)
 ```
+
+## Roadmap
+
+- Chromium on-screen keyboard
+- Support for more touchscreens
+- App store and updates served from a home NAS
+- Swipe gestures and a nicer UI toolkit
+
+LightPi is a personal project and comes with no warranty. Raspberry Pi is a trademark of Raspberry Pi Ltd, and this project is not affiliated with it.
